@@ -16,6 +16,10 @@ app.use(express.json({ limit: '50mb' }));
 app.use('/api/posts', postRoutes);
 app.use('/api/dalle', dalleRoutes);
 
+app.get('/', async (req, res) => {
+    res.send('DALL-e-yo, everyone...');
+});
+
 
 const startServer = async () => {
     const port = process.env.PORT || 8080;
