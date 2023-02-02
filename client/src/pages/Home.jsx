@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 
+import useFetch from '../utils/useFetch';
+
 import { Card, FormField, Loader } from '../components'
 
 const RenderCards = ({ data, title }) => {
@@ -17,36 +19,17 @@ const RenderCards = ({ data, title }) => {
 }
 
 const Home = () => {
-  const [loading, setLoading] = useState(false); 
-  const [allPosts, setAllPosts] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState(null);
+  const [ allPosts, setAllPosts ] = useState(null);
+  const [ searchQuery, setSearchQuery ] = useState('');
+  const [ searchResults, setSearchResults ] = useState(null);
   const [ searchTimeout, setSearchTimeout ] = useState(null);
 
+  const { loading, get } = useFetch('http://localhost:8080/api');
+
   useEffect(() => {
-    const fetchPosts = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch('http://localhost:8080/api/posts', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-
-      if (!response.ok) throw new Error('API call failed.');
-
-      const { data } = await response.json();
-      setAllPosts(data.reverse());
-
-      } catch (error) {
-        alert(error);
-        
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchPosts();
+    get('posts')
+      .then(data => setAllPosts(data.reverse()))
+      .catch(error => alert(error))
   }, []);
 
   const handleSearch = async ({ target }) => {

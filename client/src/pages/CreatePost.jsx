@@ -1,12 +1,13 @@
 import React, { useState } from 'react'
 import {  useNavigate } from 'react-router-dom'
 
+import { useFetch } from '../utils/useFetch';
+
 import { preview } from '../assets'
 import { getRandomPrompt } from '../utils'
 import { FormField, Loader } from '../components'
 
 const CreatePost = () => {
-  const [ loading, setLoading ] = useState(false); 
   const [ generatingImage, setGeneratingImage ] = useState(false); 
   const [ form, setForm ] = useState({
     title: '',
@@ -14,30 +15,17 @@ const CreatePost = () => {
     image: ''
   }); 
 
+  const { loading, post } = useFetch('http://localhost:8080/api');
   const navigate = useNavigate(); 
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     
     if (form.prompt && form.image) {
-      setLoading(true);
-      
-      try {
-        const response = await fetch('http://localhost:8080/api/posts', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(form)
-        });
-        await response.json();
-        navigate('/');
+      post('posts', form)
+        .then(() => navigate('/'))
+        .catch(error => alert(error));
 
-      } catch (error) {
-        alert(error);
-      } finally {
-        setLoading(false);
-      }
     } else {
       alert('Please enter a prompt to generate an image');
     }
